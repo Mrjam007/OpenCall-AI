@@ -1,0 +1,10 @@
+ari
+asyncio
+faster-whisper
+webrtcvad
+numpy
+soundfile
+requests
+websockets
+uvloop
+ollama
