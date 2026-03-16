@@ -1,21 +1,39 @@
 #!/bin/bash
 set -e
 
-echo "Starting OpenCall AI Installation (Ubuntu LXC)..."
+# Detect OS
+if [ -f /etc/alpine-release ]; then
+    OS="alpine"
+else
+    OS="ubuntu"
+fi
+
+echo "Starting OpenCall AI Installation ($OS LXC)..."
 
 # Step 1: Install Asterisk & Dependencies
 if ! command -v asterisk > /dev/null; then
     echo "Installing Asterisk and core dependencies..."
-    apt-get update
-    apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
-        zstd curl wget git build-essential
+    if [ "$OS" = "alpine" ]; then
+        apk update
+        # Install gcompat and libstdc++ so precompiled glibc binaries (Ollama, Piper) can run
+        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils
+    else
+        apt-get update
+        apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
+            zstd curl wget git build-essential sudo
+    fi
 else
-    echo "Asterisk is already installed. Skipping apt-get..."
+    echo "Asterisk is already installed. Skipping package installation..."
 fi
 
 # Copy configs
 cp ../asterisk/*.conf /etc/asterisk/
-systemctl reload asterisk || systemctl restart asterisk
+if [ "$OS" = "alpine" ]; then
+    # In Alpine, OpenRC is used instead of systemd
+    rc-service asterisk reload || rc-service asterisk restart || rc-service asterisk start || true
+else
+    systemctl reload asterisk || systemctl restart asterisk
+fi
 
 # Step 2: Install Ollama (CPU-only enforced for Proxmox LXC)
 if ! command -v ollama > /dev/null && [ ! -f "/usr/local/bin/ollama" ]; then
@@ -30,8 +48,13 @@ fi
 # Start Ollama service in the background (required to pull models)
 if ! id -u ollama > /dev/null 2>&1; then
     echo "Creating ollama user..."
-    useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
+    if [ "$OS" = "alpine" ]; then
+        adduser -S -D -H -h /usr/share/ollama -s /sbin/nologin ollama || true
+    else
+        useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
+    fi
 fi
+mkdir -p /usr/share/ollama
 # Ensure ownership
 chown -R ollama:ollama /usr/share/ollama
 
