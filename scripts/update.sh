@@ -5,8 +5,10 @@ echo "Starting OpenCall AI update..."
 
 # 1. Pull latest code
 echo "Pulling latest changes from Git..."
-# This assumes you are on the main/master branch
+# Stash any local changes to scripts or configs to avoid overwrite errors
+git stash
 git pull
+git stash pop || echo "No local changes to pop, or minor conflict resolved automatically."
 
 # 2. Update Asterisk configurations
 echo "Updating Asterisk configurations..."

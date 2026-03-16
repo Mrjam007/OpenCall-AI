@@ -27,19 +27,17 @@ class CallSession:
         
     async def start(self):
         # Create a basic mixing bridge
-        self.bridge = self.client.bridges.create(type='mixing')
-        self.client.bridges.addChannel(bridgeId=self.bridge.id, channel=self.channel_id)
-        
+        self.bridge = self.client.post('bridges', json={'type': 'mixing'})
+        self.client.post(f"bridges/{self.bridge['id']}/addChannel", json={'channel': self.channel_id})
+
         # Start external media channel to stream to/from Python (UDP)
         port = self.audio_stream.get_port()
-        self.external_media = self.client.channels.externalMedia(
-            app='opencall_ai',
-            external_host=f'127.0.0.1:{port}', # Assuming localhost
-            format='ulaw'
-        )
-        self.client.bridges.addChannel(bridgeId=self.bridge.id, channel=self.external_media.id)
-        
-        # Start processing loops
+        self.external_media = self.client.post('channels/externalMedia', json={
+            'app': 'opencall_ai',
+            'external_host': f'127.0.0.1:{port}', # Assuming localhost
+            'format': 'ulaw'
+        })
+        self.client.post(f"bridges/{self.bridge['id']}/addChannel", json={'channel': self.external_media['id']})
         await asyncio.gather(
             self.audio_stream.listen(self.handle_audio_in),
             self.greet_user()
@@ -66,7 +64,9 @@ class CallSession:
         self.is_playing = False
         # Stop playback on Asterisk
         self.tts.stop()
-        self.channel.stopSilence()
+        # In this custom ARI implementation, you'd stop actual playbacks if Asterisk strings them, 
+        # but since we are doing External Media streaming directly over UDP, 
+        # stopping our TTS generator is enough to stop the audio.
 
     async def process_turn(self, user_text):
         self.history.append({"role": "user", "content": user_text})
@@ -87,10 +87,10 @@ class CallSession:
     def cleanup(self):
         if self.bridge:
             try:
-                self.client.bridges.destroy(bridgeId=self.bridge.id)
+                self.client.delete(f"bridges/{self.bridge['id']}")
             except: pass
         if self.external_media:
             try:
-                self.client.channels.hangup(channelId=self.external_media.id)
+                self.client.delete(f"channels/{self.external_media['id']}")
             except: pass
         self.audio_stream.close()

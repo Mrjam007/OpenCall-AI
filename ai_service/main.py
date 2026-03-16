@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import ari
+from custom_ari import ARIClient
 from session import CallSession
 
 logging.basicConfig(level=logging.INFO)
@@ -10,28 +10,26 @@ ARI_URL = 'http://localhost:8088/ari'
 ARI_USER = 'asterisk'
 ARI_PASS = 'asterisk'
 
-client = ari.connect(ARI_URL, ARI_USER, ARI_PASS)
+client = ARIClient(ARI_URL, ARI_USER, ARI_PASS)
 active_sessions = {}
 
-def on_stasis_start(channel_obj, ev):
+def on_stasis_start(ev):
     """Handler for when a call enters the Stasis application"""
-    channel = channel_obj.get("channel")
+    channel = ev.get("channel")
     channel_id = channel.get("id")
     logger.info(f"Incoming call: {channel_id}")
-    
+
     # Answer if not answered
-    channel.answer()
-    
+    client.post(f"channels/{channel_id}/answer")
+
     # Create session
     session = CallSession(client, channel)
     active_sessions[channel_id] = session
     asyncio.ensure_future(session.start())
 
-def on_stasis_end(channel_obj, ev):
+def on_stasis_end(ev):
     """Handler for when a call leaves Stasis"""
-    channel_id = channel_obj.get("channel").get("id")
-    if channel_id in active_sessions:
-        logger.info(f"Ending call: {channel_id}")
+    channel_id = ev.get("channel").get("id")
         active_sessions[channel_id].cleanup()
         del active_sessions[channel_id]
 

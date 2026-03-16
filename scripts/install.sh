@@ -80,4 +80,4 @@ pip install -r requirements.txt
 
 echo "Installation complete."
 echo "Run Asterisk: asterisk -rvvv"
-echo "Run Python Service: source venv/bin/activate && python main.py"
+echo "Run Python Service: cd ../ai_service && source venv/bin/activate && python main.py"
