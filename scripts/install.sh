@@ -17,9 +17,7 @@ systemctl restart asterisk
 echo "Installing Ollama..."
 # We download the binary directly to prevent the install.sh from crashing
 # while trying to install Proxmox (pve) kernel headers for NVIDIA DKMS
-curl -L https://ollama.com/download/ollama-linux-amd64.tgz -o ollama-linux-amd64.tgz
-tar -C /usr/local -xzf ollama-linux-amd64.tgz
-rm ollama-linux-amd64.tgz
+curl -sL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -xf - -C /usr/local
 
 # Start Ollama service in the background (required to pull models)
 echo "Starting Ollama service..."
