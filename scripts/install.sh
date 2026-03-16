@@ -78,6 +78,12 @@ source venv/bin/activate
 echo "Verifying Python dependencies..."
 pip install -r requirements.txt
 
+# Create the global command so the user can just type `opencall run` from anywhere
+echo "Setting up global 'opencall run' command..."
+chmod +x ../scripts/opencall-run.sh
+ln -sf "$(pwd)/../scripts/opencall-run.sh" /usr/local/bin/opencall-run
+
 echo "Installation complete."
 echo "Run Asterisk: asterisk -rvvv"
-echo "Run Python Service: cd ../ai_service && source venv/bin/activate && python main.py"
+echo ""
+echo "🚀 You can now start the service from ANYWHERE by typing: opencall-run"
