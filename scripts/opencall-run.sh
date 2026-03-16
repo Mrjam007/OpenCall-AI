@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 # Resolve the absolute path of the OpenCall-AI directory
