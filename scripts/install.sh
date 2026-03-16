@@ -24,12 +24,15 @@ rm ollama-linux-amd64.tgz
 # Start Ollama service in the background (required to pull models)
 echo "Starting Ollama service..."
 useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
+# Ensure ownership
+chown -R ollama:ollama /usr/share/ollama
+
 # For testing directly in the script, we can run it in the background
-sudo -u ollama ollama serve > /dev/null 2>&1 &
+sudo -u ollama OLLAMA_HOST=127.0.0.1:11434 ollama serve > /dev/null 2>&1 &
 sleep 5 # Wait for daemon to start
 
 # We'll pull the TinyLlama model (you should use GGUF in production)
-ollama pull tinyllama
+OLLAMA_HOST=127.0.0.1:11434 ollama pull tinyllama
 
 # Step 3: Install Piper TTS
 echo "Installing Piper..."
