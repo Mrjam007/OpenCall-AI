@@ -14,9 +14,12 @@ git stash pop || echo "No local changes to pop, or minor conflict resolved autom
 echo "Updating Asterisk configurations..."
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 cp "$SCRIPT_DIR/../asterisk/"*.conf /etc/asterisk/
+chown -R asterisk:asterisk /etc/asterisk/
 
 if [ -f /etc/alpine-release ]; then
-    rc-service asterisk reload || rc-service asterisk restart || true
+    mkdir -p /var/run/asterisk
+    chown asterisk:asterisk /var/run/asterisk
+    rc-service asterisk reload || rc-service asterisk restart || rc-service asterisk start || true
 else
     systemctl reload asterisk || systemctl restart asterisk || true
 fi

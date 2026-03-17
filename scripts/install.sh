@@ -26,9 +26,22 @@ else
     echo "Asterisk is already installed. Skipping package installation..."
 fi
 
+# Create base asterisk config if missing (Alpine sometimes doesn't bundle the default cleanly)
+if [ ! -f /etc/asterisk/asterisk.conf ]; then
+    echo "[options]" > /etc/asterisk/asterisk.conf
+    echo "runuser = asterisk" >> /etc/asterisk/asterisk.conf
+    echo "rungroup = asterisk" >> /etc/asterisk/asterisk.conf
+fi
+
 # Copy configs
 cp ../asterisk/*.conf /etc/asterisk/
+chown -R asterisk:asterisk /etc/asterisk/
+
 if [ "$OS" = "alpine" ]; then
+    # Ensure run directory exists for Asterisk PID
+    mkdir -p /var/run/asterisk
+    chown asterisk:asterisk /var/run/asterisk
+    
     # In Alpine, OpenRC is used instead of systemd
     rc-service asterisk reload || rc-service asterisk restart || rc-service asterisk start || true
 else
