@@ -64,17 +64,17 @@ else
 fi
 
 # Start Ollama service in the background (required to pull models)
-if [ "$OS" = "alpine" ] && ! getent group ollama > /dev/null 2>&1; then
-    addgroup -S ollama || true
-fi
-
-if ! id -u ollama > /dev/null 2>&1; then
+if ! id -u ollama >/dev/null 2>&1; then
     echo "Creating ollama user..."
     if [ "$OS" = "alpine" ]; then
+        if ! grep -q '^ollama:' /etc/group; then addgroup -S ollama || true; fi
         adduser -S -D -H -h /usr/share/ollama -s /sbin/nologin -G ollama ollama || true
     else
         useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
     fi
+fi
+if [ "$OS" = "alpine" ]; then
+    if ! grep -q '^ollama:' /etc/group; then addgroup -S ollama || true; fi
 fi
 mkdir -p /usr/share/ollama
 # Ensure ownership
