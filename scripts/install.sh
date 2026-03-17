@@ -145,7 +145,7 @@ else
     echo "Python virtual environment already exists..."
 fi
 
-source venv/bin/activate
+. venv/bin/activate
 echo "Verifying Python dependencies..."
 
 # In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
