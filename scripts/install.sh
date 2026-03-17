@@ -20,7 +20,7 @@ if ! command -v asterisk > /dev/null; then
     else
         apt-get update
         apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
-            zstd curl wget git build-essential sudo pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
+            zstd curl wget git build-essential sudo pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev cmake
     fi
 else
     echo "Asterisk is already installed. Skipping package installation..."
@@ -144,6 +144,11 @@ echo "Verifying Python dependencies..."
 # In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
 pip install setuptools Cython
 pip install --no-binary av "av>=11.0.0"
+
+# Install CTranslate2 manually from source on Alpine as musyl binaries don't exist
+if [ "$OS" = "alpine" ]; then
+    apk add --no-cache cmake build-base openblas-dev
+fi
 
 pip install -r requirements.txt
 
