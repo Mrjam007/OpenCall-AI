@@ -18,7 +18,7 @@ if ! command -v asterisk > /dev/null; then
         # Install pkgconf and ffmpeg-dev for PyAV/faster-whisper
         apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils pkgconf ffmpeg-dev python3-dev
         # Pre-install compilers since alpine pip misses wheel support heavily
-        apk add cmake linux-headers
+        apk add cmake linux-headers onnxruntime-dev
     else
         apt-get update
         apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
@@ -144,13 +144,13 @@ source venv/bin/activate
 echo "Verifying Python dependencies..."
 
 # In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
-pip install setuptools Cython
+pip install setuptools Cython packaging wheel
 pip install --no-binary av "av>=11.0.0"
 
 # Install CTranslate2 manually from source on Alpine as musyl binaries don't exist
 if [ "$OS" = "alpine" ]; then
     apk add --no-cache cmake build-base openblas-dev
-    pip install "ctranslate2>=4.0" --no-binary ctranslate2 || true
+    CMAKE_ARGS="-DWITH_CUDA=OFF -DWITH_MKL=OFF" pip install ctranslate2 --no-binary ctranslate2 || true
 fi
 
 pip install -r requirements.txt
