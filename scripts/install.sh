@@ -27,6 +27,7 @@ else
 fi
 
 # Create base asterisk config if missing (Alpine sometimes doesn't bundle the default cleanly)
+mkdir -p /etc/asterisk
 if [ ! -f /etc/asterisk/asterisk.conf ]; then
     echo "[options]" > /etc/asterisk/asterisk.conf
     echo "runuser = asterisk" >> /etc/asterisk/asterisk.conf
@@ -63,10 +64,13 @@ else
 fi
 
 # Start Ollama service in the background (required to pull models)
+if [ "$OS" = "alpine" ] && ! getent group ollama > /dev/null 2>&1; then
+    addgroup -S ollama || true
+fi
+
 if ! id -u ollama > /dev/null 2>&1; then
     echo "Creating ollama user..."
     if [ "$OS" = "alpine" ]; then
-        addgroup -S ollama || true
         adduser -S -D -H -h /usr/share/ollama -s /sbin/nologin -G ollama ollama || true
     else
         useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
