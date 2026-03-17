@@ -1,6 +1,11 @@
 #!/bin/sh
 set -e
 
+# Enable verbose logging if -v is passed
+if [ "$1" = "-v" ]; then
+    set -x
+fi
+
 # Detect OS
 if [ -f /etc/alpine-release ]; then
     OS="alpine"
