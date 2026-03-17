@@ -65,11 +65,14 @@ if [ "$OS" = "alpine" ] && [ -f "/usr/local/bin/ollama" ]; then
     rm -f /usr/local/bin/ollama
 fi
 
-if ! command -v ollama > /dev/null && [ ! -f "/usr/local/bin/ollama" ]; then
+if ! command -v ollama > /dev/null; then
     echo "Installing Ollama..."
-    # On Ubuntu we download the binary. On Alpine, it should be installed via apk above.
+    # On Ubuntu we download the binary. On Alpine, install via apk.
     if [ "$OS" != "alpine" ]; then
         curl -sL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -xf - -C /usr/local
+    else
+        apk update
+        apk add ollama
     fi
 else
     echo "Ollama is already installed. Skipping download..."
