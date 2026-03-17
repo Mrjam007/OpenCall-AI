@@ -15,8 +15,8 @@ if ! command -v asterisk > /dev/null; then
     echo "Installing Asterisk and core dependencies..."
     if [ "$OS" = "alpine" ]; then
         apk update
-        # Install gcompat and libstdc++ so precompiled glibc binaries (Ollama, Piper) can run
-        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils
+        # Install gcompat and libstdc++ so precompiled glibc binaries (Piper) can run
+        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils ollama
     else
         apt-get update
         apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
@@ -47,7 +47,8 @@ if [ "$OS" = "alpine" ]; then
     if rc-service asterisk status >/dev/null 2>&1; then
         rc-service asterisk reload || true
     else
-        rc-service asterisk start || true
+        echo "Starting asterisk..."
+        rc-service asterisk start || (asterisk -c -vvvvv; false)
     fi
 else
     systemctl reload asterisk || systemctl restart asterisk
@@ -56,9 +57,10 @@ fi
 # Step 2: Install Ollama (CPU-only enforced for Proxmox LXC)
 if ! command -v ollama > /dev/null && [ ! -f "/usr/local/bin/ollama" ]; then
     echo "Installing Ollama..."
-    # We download the binary directly to prevent the install.sh from crashing
-    # while trying to install Proxmox (pve) kernel headers for NVIDIA DKMS
-    curl -sL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -xf - -C /usr/local
+    # On Ubuntu we download the binary. On Alpine, it should be installed via apk above.
+    if [ "$OS" != "alpine" ]; then
+        curl -sL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -xf - -C /usr/local
+    fi
 else
     echo "Ollama is already installed. Skipping download..."
 fi
