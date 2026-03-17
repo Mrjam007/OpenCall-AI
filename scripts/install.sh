@@ -16,7 +16,7 @@ if ! command -v asterisk > /dev/null; then
     if [ "$OS" = "alpine" ]; then
         apk update
         # Install pkgconf and ffmpeg-dev for PyAV/faster-whisper
-        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils pkgconf ffmpeg-dev
+        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils pkgconf ffmpeg-dev python3-dev
     else
         apt-get update
         apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
@@ -28,7 +28,7 @@ fi
 
 # Create base asterisk config if missing (Alpine sometimes doesn't bundle the default cleanly)
 if [ "$OS" = "alpine" ]; then
-    apk add --no-cache pkgconf ffmpeg-dev
+    apk add --no-cache pkgconf ffmpeg-dev python3-dev librtlsdr-dev
 fi
 
 mkdir -p /etc/asterisk
