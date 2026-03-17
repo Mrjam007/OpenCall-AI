@@ -34,6 +34,11 @@ if [ ! -f /etc/asterisk/asterisk.conf ]; then
     echo "rungroup = asterisk" >> /etc/asterisk/asterisk.conf
 fi
 
+if [ ! -f /etc/asterisk/modules.conf ]; then
+    echo "[modules]" > /etc/asterisk/modules.conf
+    echo "autoload=yes" >> /etc/asterisk/modules.conf
+fi
+
 # Copy configs
 cp ../asterisk/*.conf /etc/asterisk/
 chown -R asterisk:asterisk /etc/asterisk/
