@@ -60,6 +60,11 @@ else
 fi
 
 # Step 2: Install Ollama (CPU-only enforced for Proxmox LXC)
+if [ "$OS" = "alpine" ] && [ -f "/usr/local/bin/ollama" ]; then
+    echo "Removing incompatible glibc Ollama binary..."
+    rm -f /usr/local/bin/ollama
+fi
+
 if ! command -v ollama > /dev/null && [ ! -f "/usr/local/bin/ollama" ]; then
     echo "Installing Ollama..."
     # On Ubuntu we download the binary. On Alpine, it should be installed via apk above.
