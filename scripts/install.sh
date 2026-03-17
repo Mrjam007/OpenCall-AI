@@ -43,7 +43,11 @@ if [ "$OS" = "alpine" ]; then
     chown asterisk:asterisk /var/run/asterisk
     
     # In Alpine, OpenRC is used instead of systemd
-    rc-service asterisk reload || rc-service asterisk restart || rc-service asterisk start || true
+    if rc-service asterisk status >/dev/null 2>&1; then
+        rc-service asterisk reload || true
+    else
+        rc-service asterisk start || true
+    fi
 else
     systemctl reload asterisk || systemctl restart asterisk
 fi
@@ -62,7 +66,8 @@ fi
 if ! id -u ollama > /dev/null 2>&1; then
     echo "Creating ollama user..."
     if [ "$OS" = "alpine" ]; then
-        adduser -S -D -H -h /usr/share/ollama -s /sbin/nologin ollama || true
+        addgroup -S ollama || true
+        adduser -S -D -H -h /usr/share/ollama -s /sbin/nologin -G ollama ollama || true
     else
         useradd -r -s /bin/false -m -d /usr/share/ollama ollama || true
     fi
