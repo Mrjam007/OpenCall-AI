@@ -147,10 +147,18 @@ echo "Verifying Python dependencies..."
 pip install setuptools Cython packaging wheel
 pip install --no-binary av "av>=11.0.0"
 
-# Install CTranslate2 manually from source on Alpine as musyl binaries don't exist
+# ctranslate2 lacks source tarballs on PyPI, so pip fails to build it natively on musl.
+# We download the manylinux glibc wheel, patch its filename so pip accepts it on Alpine,
+# and lean on the 'gcompat' compatibility layer we installed to run it!
 if [ "$OS" = "alpine" ]; then
-    apk add --no-cache cmake build-base openblas-dev
-    CMAKE_ARGS="-DWITH_CUDA=OFF -DWITH_MKL=OFF" pip install ctranslate2 --no-binary ctranslate2 || true
+    echo "Fetching and patching ctranslate2 manylinux wheel for Alpine (gcompat)..."
+    mkdir -p /tmp/ct2
+    pip download "ctranslate2>=4.0,<5" --platform manylinux2014_x86_64 --python-version 3.12 --only-binary=:all: --no-deps -d /tmp/ct2
+    for f in /tmp/ct2/ctranslate2*.whl; do
+        MUSL_WHEEL=$(echo "$f" | sed 's/-manylinux.*/-musllinux_1_2_x86_64.whl/')
+        mv "$f" "$MUSL_WHEEL"
+        pip install "$MUSL_WHEEL"
+    done
 fi
 
 pip install -r requirements.txt
