@@ -142,7 +142,8 @@ source venv/bin/activate
 echo "Verifying Python dependencies..."
 
 # In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
-pip install "av>=11.0.0"
+pip install setuptools Cython
+pip install --no-binary av "av>=11.0.0"
 
 pip install -r requirements.txt
 
