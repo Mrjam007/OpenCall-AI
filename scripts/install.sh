@@ -72,7 +72,7 @@ if ! command -v ollama > /dev/null; then
         curl -sL https://github.com/ollama/ollama/releases/latest/download/ollama-linux-amd64.tar.zst | zstd -d | tar -xf - -C /usr/local
     else
         apk update
-        apk add ollama
+        apk add --no-cache -X http://dl-cdn.alpinelinux.org/alpine/edge/community -X http://dl-cdn.alpinelinux.org/alpine/edge/main ollama
     fi
 else
     echo "Ollama is already installed. Skipping download..."
