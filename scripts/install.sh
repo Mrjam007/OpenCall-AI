@@ -140,6 +140,10 @@ fi
 
 source venv/bin/activate
 echo "Verifying Python dependencies..."
+
+# In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
+pip install "av>=11.0.0"
+
 pip install -r requirements.txt
 
 # Create the global command so the user can just type `opencall run` from anywhere
