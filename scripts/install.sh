@@ -15,18 +15,22 @@ if ! command -v asterisk > /dev/null; then
     echo "Installing Asterisk and core dependencies..."
     if [ "$OS" = "alpine" ]; then
         apk update
-        # Install gcompat and libstdc++ so precompiled glibc binaries (Piper) can run
-        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils ollama
+        # Install pkgconf and ffmpeg-dev for PyAV/faster-whisper
+        apk add asterisk asterisk-dev asterisk-sounds-en python3 py3-pip zstd curl wget git build-base gcompat libstdc++ sudo bash coreutils pkgconf ffmpeg-dev
     else
         apt-get update
         apt-get install -y asterisk asterisk-dev python3 python3-pip python3-venv \
-            zstd curl wget git build-essential sudo
+            zstd curl wget git build-essential sudo pkg-config libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
     fi
 else
     echo "Asterisk is already installed. Skipping package installation..."
 fi
 
 # Create base asterisk config if missing (Alpine sometimes doesn't bundle the default cleanly)
+if [ "$OS" = "alpine" ]; then
+    apk add --no-cache pkgconf ffmpeg-dev
+fi
+
 mkdir -p /etc/asterisk
 if [ ! -f /etc/asterisk/asterisk.conf ]; then
     echo "[options]" > /etc/asterisk/asterisk.conf
