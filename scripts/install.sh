@@ -150,7 +150,7 @@ echo "Verifying Python dependencies..."
 
 # In Python 3.12, old Cython syntax in older PyAV versions fails to compile. We must force pip to install newer PyAV
 pip install setuptools Cython packaging wheel
-pip install --no-binary av "av>=11.0.0"
+pip install "av>=11.0.0"
 
 # ctranslate2 lacks source tarballs on PyPI, so pip fails to build it natively on musl.
 # We download the manylinux glibc wheel, patch its filename so pip accepts it on Alpine,
