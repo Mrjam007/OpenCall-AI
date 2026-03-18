@@ -14,5 +14,5 @@ fi
 
 echo "Starting OpenCall AI Service..."
 cd "$AI_SERVICE_DIR"
-source venv/bin/activate
+./venv/bin/activate
 python main.py
