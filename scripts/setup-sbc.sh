@@ -27,6 +27,14 @@ else
     fi
 fi
 
+if docker ps -a | grep -q "3cx-sbc"; then
+    echo "====================================================="
+    echo " 3CX SBC container is already built and running!     "
+    echo " Skipping re-installation.                           "
+    echo "====================================================="
+    exit 0
+fi
+
 # 2. Build 3CX SBC Debian 12 Image
 echo "Building Debian 12 Docker Image for 3CX SBC..."
 mkdir -p /tmp/3cx_sbc_docker
@@ -48,6 +56,9 @@ RUN apt-get update -y && apt-get upgrade -y --with-new-pkgs && apt-get dist-upgr
 
 # Install 3CX SBC
 RUN apt-get install 3cxsbc -y
+
+# Enable 3CX SBC service to start automatically on container boot
+RUN systemctl enable 3cxsbc
 
 # Use systemd as the entrypoint so systemctl commands work correctly inside the container
 CMD ["/lib/systemd/systemd"]
