@@ -30,6 +30,7 @@ def on_stasis_start(ev):
 def on_stasis_end(ev):
     """Handler for when a call leaves Stasis"""
     channel_id = ev.get("channel").get("id")
+    if channel_id in active_sessions:
         active_sessions[channel_id].cleanup()
         del active_sessions[channel_id]
 
