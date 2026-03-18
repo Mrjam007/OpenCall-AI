@@ -145,6 +145,7 @@ else
     echo "Python virtual environment already exists..."
 fi
 
+chmod +x venv/bin/activate
 . venv/bin/activate
 echo "Verifying Python dependencies..."
 

@@ -28,7 +28,8 @@ fi
 echo "Updating Python environment..."
 cd "$SCRIPT_DIR/../ai_service"
 if [ -d "venv" ]; then
-    sudo ./venv/bin/activate
+    chmod +x venv/bin/activate
+    . ./venv/bin/activate
     pip install -r requirements.txt
 else
     echo "Virtual environment not found in ai_service. Please run install.sh first."
