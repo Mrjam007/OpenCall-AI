@@ -1,10 +1,6 @@
 #!/bin/sh
 set -e
-
-# Enable verbose logging if -v is passed
-if [ "$1" = "-v" ]; then
-    set -x
-fi
+set -x
 
 # Detect OS
 if [ -f /etc/alpine-release ]; then
